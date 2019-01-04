@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>管理控制台</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="./static/libs/metisMenu/dist/metisMenu.css">
+<link rel="stylesheet" href="./static/libs/font-awesome/css/font-awesome.css">
+<link rel="stylesheet" href="./static/libs/bootstrap/css/bootstrap.css">
+<link rel="stylesheet" href="./static/libs/bootstrap/css/bootstrap-responsive.min.css">
+<link rel="stylesheet" href="./static/css/common/layout.css">
+<link rel="stylesheet" href="./static/libs/bootstrap-table-master/bootstrap-table.css">
+<link rel="stylesheet" href="./static/css/hostadm.css" type="text/css">
+<style>
+	.alarm{
+		background: #ff54c6; 
+	}
+	.serious{
+		background: #f0ca09;
+	}
+	.deadly{
+		background: #ff5454;
+	}
+	.monitor-text-list{
+		margin-left: 40px; margin-right: 40px; margin-top: 20px; padding: 0;
+	}
+	.monitor-text-list li{
+		margin:0; padding: 0; list-style-type: none; height: 50px; line-height: 50px; border-bottom: 1px solid #e4e6eb;
+	}
+	.monitor-text-list li span{
+		color: #ffffff; display: inline; font-size: 12px; padding: 5px;
+	}
+	.monitor-text-list li b{
+		font-weight: normal; float: right;
+	}
+</style>
+</head>
+
+<body class="body-bg-color">
+<div class="header-middle">
+	<div class="head-left">
+		<p style="color: white; font-size: 30px; font-weight: bold; width: 300px;">保密综合管理系统</p>
+	</div>
+	<div class="head-middle">
+		<div class="nav-pright">
+			<ul class="nav nav-pills">
+				<li role="presentation"><a href="/home/">系统管理</a></li>
+				<li role="presentation"><a href="/devadm/">设备管理</a></li>
+				<li role="presentation" class="active"><a id="a_head">综管系统</a></li>
+				<li role="presentation"><a href="/audit/">日志审计</a></li>
+			</ul>
+		</div>
+	</div>
+	
+	<div class="head-right">
+		<div class="dropdown">
+			<a aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown" href="#" title="admin1">admin1&nbsp;&nbsp;<i class="fa fa-caret-down"></i>
+			</a> <input type="hidden" id="gLoginName" value="admin1">
+			<ul class="dropdown-menu dropdown-user">
+				<li><a href="javascript:void(0)" onclick="changePwd()"> <i
+						class="fa  fa-gear  fa-fw"></i> 修改密码
+				</a> <a href="javascript:void(0)"
+					onclick="showModal('#sessionTimeoutModal')"> <i
+						class="fa  fa-clock-o  fa-fw"></i> 超时设置
+				</a> <a href="/devadm/accounts/logout/"> <i
+						class="fa fa-sign-out fa-fw"></i> 退出
+				</a></li>
+			</ul>
+		</div>
+		<div style="margin-top: 20px; margin-right: 30px;">
+			<a href="javascript:void(0)"
+				style="color: #E0E4E7; font-size: 15px; position: relative; left: -50px; top: -40px;"
+				onclick="diskSave()">保存</a>
+		</div>
+	</div>
+</div>
+
+<div class="alert-wrap" id="notice_messages">
+	<span style="display: none;">有这个玩意主要是因为在IE8下，如果一开始为空，导致第一次append(html)时，还是不显示任何东西</span>
+</div>
+
+<div class="main-wrap">
+	<div class="middle-wrap">
+		<div class="body-menu">
+			<div id="bg_music" style="display: none;"></div>
+			<ul class="nav" id="side-menu">
+				<li><a href="/bmpf/usermgr/"><i class="glyphicon glyphicon-user"></i> 用户管理</a></li>
+				<li><a href="/bmpf/hostmgr/"><i class="fa fa-desktop"></i>主机管理</a></li>
+				<li><a href="/bmpf/subsysaccess/subAccess"><i class="glyphicon glyphicon-log-in"></i>子系统入口</a></li>
+				<li><a href="/bmpf/noticemgr/"><i class="glyphicon glyphicon-record"></i>事件中心</a></li>
+				<li><a href="#"><i class="glyphicon glyphicon-th"></i>软件管理<span class="fa arrow"></span></a>
+					<ul class="nav nav-second-level">
+						<li><a href="/bmpf/softwaremgr/">软件包管理</a></li>
+						<li><a href="/bmpf/policymgr/">软件分发策略</a></li>
+					</ul>
+				</li>
+				<li><a href="#"><i class="glyphicon glyphicon-file"></i>状态信息<span class="fa arrow"></span></a>
+					<ul class="nav nav-second-level">
+						<li><a href="/bmpf/subsystem/index">子系统状态</a></li>
+						<li><a href="/bmpf/subsystem/terminalHost/">终端状态</a></li>
+					</ul>
+				</li>
+				<li><a href="#"><i class="glyphicon glyphicon-volume-up"></i>消息推送<span
+						class="fa arrow"></span></a>
+					<ul class="nav nav-second-level">
+						<li><a href="/bmpf/message/feed/">发送消息</a></li>
+						<li><a href="/bmpf/message/page/">查看消息</a></li>
+					</ul>
+				</li>
+				<li><a href="#"><i class="glyphicon glyphicon-cog"></i>系统设置<span
+						class="fa arrow"></span></a>
+					<ul class="nav nav-second-level">
+						<li><a href="/bmpf/seclvl/">密级配置</a></li>
+						<li><a href="/bmpf/syssettings/warning/">告警配置</a></li>
+						<li><a href="/bmpf/syssettings/authIP/">可信IP配置</a></li>
+						<li><a href="/bmpf/syssettings/init/">初装配置</a></li>
+					</ul></li>
+			</ul>
+		</div>
+
+		<div class="body-content">
+			<!-- ================================================= // body-content-in begin ================================================= -->
+			<div class="body-content-in">
+			<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th style="width: 20%; text-align: center; font-size: 16px; "><b>基础平台</b></th>
+					<th style="width: 20%; text-align: center; font-size: 16px; "><b>终端管控</b></th>
+					<th style="width: 20%; text-align: center; font-size: 16px; "><b>标签管理</b></th>
+					<th style="width: 20%; text-align: center; font-size: 16px; "><b>集中管控</b></th>
+					<th style="width: 20%; text-align: center; font-size: 16px; "><b>集中文印</b></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<!-- // 第一个表格 begin -->
+						<table width="100%" border="0">
+							  <tr>
+							    <td width="33%" height="30" align="center" valign="middle">cpu</td>
+							    <td align="center" valign="middle">内存</td>
+							    <td width="33%" align="center" valign="middle">网络使用率</td>
+							  </tr>
+							  <tr>
+							    <td align="left" valign="top">
+									<div id="base-cpu" style="height:100px;"></div>
+								</td>
+							    <td>
+									<div id="base-memory" style="height:100px;"></div>
+								</td>
+							    <td>
+							    	<div id="base-net" style="height:100px;"></div>
+							    </td>
+							  </tr>
+							</table>
+						<!-- // 第一个表格  end -->
+					</td>
+					<td>
+						<!-- // 第二个表格 begin -->
+						<table width="100%" border="0">
+							  <tr>
+							    <td width="33%" height="30" align="center" valign="middle">cpu</td>
+							    <td align="center" valign="middle">内存</td>
+							    <td width="33%" align="center" valign="middle">网络使用率</td>
+							  </tr>
+							  <tr>
+							    <td align="left" valign="top" height="100" id="terminal-cpu"></td>
+							    <td align="left" valign="top" id="terminal-memory"></td>
+							    <td align="left" valign="top" id="terminal-net"></td>
+							  </tr>
+							</table>
+						<!-- // 第二个表格  end -->
+					</td>
+					<td>						
+						<!-- // 第三个表格 begin -->
+						<table width="100%" border="0">
+							  <tr>
+							    <td width="33%" height="30" align="center" valign="middle">cpu</td>
+							    <td align="center" valign="middle">内存</td>
+							    <td width="33%" align="center" valign="middle">网络使用率</td>
+							  </tr>
+							  <tr>
+							    <td align="left" valign="top" height="100" id="label-cpu"></td>
+							    <td align="left" valign="top" id="label-memory"></td>
+							    <td align="left" valign="top" id="label-net"></td>
+							  </tr>
+							</table>
+						<!-- // 第三个表格  end -->
+						</td>
+					<td>
+						<!-- // 第四个表格 begin -->
+						<table width="100%" border="0">
+							  <tr>
+							    <td width="33%" height="30" align="center" valign="middle">cpu</td>
+							    <td align="center" valign="middle">内存</td>
+							    <td width="33%" align="center" valign="middle">网络使用率</td>
+							  </tr>
+							  <tr>
+							    <td align="left" valign="top" height="100" id="focus-control-cpu"></td>
+							    <td align="left" valign="top" id="focus-control-memory"></td>
+							    <td align="left" valign="top" id="focus-control-net"></td>
+							  </tr>
+							</table>
+						<!-- // 第四个表格  end -->
+					</td>
+					<td>
+						<!-- // 第五个表格 begin -->
+						<table width="100%" border="0">
+							  <tr>
+							    <td width="33%" height="30" align="center" valign="middle">cpu</td>
+							    <td align="center" valign="middle">内存</td>
+							    <td width="33%" align="center" valign="middle">网络使用率</td>
+							  </tr>
+							  <tr>
+							    <td align="left" valign="top" height="100" id="focus-print-cpu"></td>
+							    <td align="left" valign="top" id="focus-print-memory"></td>
+							    <td align="left" valign="top" id="focus-print-net"></td>
+							  </tr>
+							</table>
+						<!-- // 第五个表格  end -->
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		
+		<table class="table table-bordered">
+		  <thead>
+				<tr>
+					<th style="width: 33%; font-size: 16px; text-align: center;"><b>CPU使用TOP N</b></th>
+					<th style="font-size: 16px; text-align: center;"><b>内存使用TOP N</b></th>
+					<th style="width: 33%; font-size: 16px; text-align: center;"><b>网络占用TOP N</b></th>
+				</tr>
+		  </thead>
+		  <tr>
+		    <td height="300" align="left" valign="top" id="cpu-top-n"></td>
+		    <td align="left" valign="top" id="memory-top-n"></td>
+		    <td align="left" valign="top" id="net-top-n"></td>
+		  </tr>
+		  <thead>
+				<tr>
+					<th style="width: 33%; font-size: 16px;  text-align: center;"><b>磁盘使用情况</b></th>
+					<th style="font-size: 16px;  text-align: center;"><b>日志告警</b></th>
+					<th style="width: 33%; font-size: 16px;  text-align: center;"><b>日志告警级别分布</b></th>
+				</tr>
+		  </thead>
+		  <tr>
+		    <td height="300" align="left" valign="top" id="disk-used"></td>
+		    <td align="left" valign="top">
+		    	<ul class="monitor-text-list">
+		    		<li><span class="alarm">警告</span> <b>系统内存使用过高</b> </li>
+		    		<li><span class="alarm">警告</span> <b>系统cpu使用过高</b></li>
+		    		<li><span class="serious">严重</span> <b>系统数据库连接异常</b></li>
+		    		<li><span class="serious">严重</span> <b>系统xxx服务异常</b></li>
+		    		<li><span class="deadly">致命</span> <b>系统xxx核心服务异常</b></li>
+		    	</ul>
+		    </td>
+		    <td height="300" align="left" valign="top" id="log-alarm">&nbsp;</td>
+		  </tr>
+		  <thead>
+				<tr>
+					<th style="width: 33%; font-size: 16px;  text-align: center;"><b>系统负载</b></th>
+					<th style="font-size: 16px;  text-align: center;"><b>在线离线对比</b></th>
+					<th style="width: 33%; font-size: 16px;  text-align: center;"><b>用户活跃度(周)</b></th>
+				</tr>
+		  </thead>
+		  <tr>
+		    <td align="left" valign="top" id="system-load">&nbsp;</td>
+		    <td align="left" valign="top" id="on-off-line-contrast"></td>
+		    <td height="300" align="left" valign="top" id="user-activity"></td>
+		  </tr>
+		</table>
+			</div><!-- ================================================= body-content-in end // ================================================= -->
+		</div>
+	</div>
+</div>
+
+<script src="./static/libs/jquery/jquery-1.11.2.min.js"></script>
+<script src="./static/libs/bootstrap/js/bootstrap.js"></script>
+<script src="./static/libs/bootstrap/js/respond.min.js"></script>
+<script src="./static/libs/metisMenu/dist/metisMenu.js"></script>
+<script src="./static/js/common/menu-control.js"></script>
+<script src="./static/js/common/validate.js"></script>
+<script src="./static/js/common/action.js"></script>
+<script src="./static/libs/bootstrap-table-master/bootstrap-table.js"></script>
+<script src="./static/libs/bootstrap-table-master/locale/bootstrap-table-zh-CN.js"></script>
+<script src="./static/libs/echarts/echarts.js"></script>
+<script type="text/javascript">	
+/**
+ * 基础平台
+ */
+
+var chart_BaseCpu = echarts.init(document.getElementById('base-cpu'));
+
+var option_BaseCpu = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	           name: 'cpu使用率',
+	           type: 'gauge',
+	           //max: 100,    //设置刻度盘内数值区间
+	           splitNumber: 4,  //设置间隔区域的显示数量
+               axisLine: {            // 坐标轴线
+                   lineStyle: {       // 属性lineStyle控制线条样式
+                       color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                       width: 2,
+                       shadowColor : '#fff', //默认透明
+                       shadowBlur: 10
+                   }
+               },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                   length : 10,        // 属性length控制线长
+                   lineStyle: {       // 属性lineStyle控制线条样式
+                       color: 'auto',
+                       shadowColor : '#fff', //默认透明
+                       shadowBlur: 10
+                   }
+               },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+};
+
+option_BaseCpu.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_BaseCpu.setOption(option_BaseCpu, true);
+
+setInterval(function () {
+	option_BaseCpu.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+    chart_BaseCpu.setOption(option_BaseCpu, true);
+},5000);
+
+var chart_BaseMemory = echarts.init(document.getElementById('base-memory'));
+
+var option_BaseMemory = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: '内存使用率',
+	            type: 'gauge',
+	            //max: 100,    //设置刻度盘内数值区间
+	            splitNumber: 4,  //设置间隔区域的显示数量
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                    	color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                        width: 2,
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                    length : 10,        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto',
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_BaseMemory.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_BaseMemory.setOption(option_BaseMemory, true);
+
+setInterval(function () {
+	option_BaseMemory.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+    chart_BaseMemory.setOption(option_BaseMemory, true);
+},5000);
+
+var chart_BaseNet = echarts.init(document.getElementById('base-net'));
+
+var option_BaseNet = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: '网络使用率',
+	            type: 'gauge',
+		        //max: 100,    //设置刻度盘内数值区间
+		        splitNumber: 4,  //设置间隔区域的显示数量
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                    	color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                        width: 2,
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                    length : 10,        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto',
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_BaseNet.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_BaseNet.setOption(option_BaseNet, true);
+
+setInterval(function () {
+	option_BaseNet.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+    chart_BaseNet.setOption(option_BaseNet, true);
+},5000);
+
+/**
+ * 终端管控
+ */
+
+var chart_TerminalCpu = echarts.init(document.getElementById('terminal-cpu'));
+
+var option_TerminalCpu = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: 'cpu使用率',
+	            type: 'gauge',
+		        //max: 100,    //设置刻度盘内数值区间
+		        splitNumber: 4,  //设置间隔区域的显示数量
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                    	color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                        width: 2,
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                    length : 10,        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto',
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_TerminalCpu.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_TerminalCpu.setOption(option_TerminalCpu, true);
+
+setInterval(function () {
+	option_TerminalCpu.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+    chart_TerminalCpu.setOption(option_TerminalCpu, true);
+},5000);
+
+// 内存
+
+var chart_TerminalMemory = echarts.init(document.getElementById('terminal-memory'));
+
+var option_TerminalMemory = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: '内存使用率',
+	            type: 'gauge',
+		        //max: 100,    //设置刻度盘内数值区间
+		        splitNumber: 4,  //设置间隔区域的显示数量
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                    	color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                        width: 2,
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                    length : 10,        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto',
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_TerminalMemory.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_TerminalMemory.setOption(option_TerminalMemory, true);
+
+setInterval(function () {
+	option_TerminalMemory.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+	chart_TerminalMemory.setOption(option_TerminalMemory, true);
+},5000);
+
+// 网络使用率
+
+var chart_TerminalNet = echarts.init(document.getElementById('terminal-net'));
+
+var option_TerminalNet = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: '网络使用率',
+	            type: 'gauge',
+		        //max: 100,    //设置刻度盘内数值区间
+		        splitNumber: 4,  //设置间隔区域的显示数量
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                    	color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                        width: 2,
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                    length : 10,        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto',
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_TerminalNet.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_TerminalNet.setOption(option_TerminalNet, true);
+
+setInterval(function () {
+	option_TerminalNet.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+	chart_TerminalNet.setOption(option_TerminalNet, true);
+},5000);
+
+/**
+ * 标签管理
+ */
+
+// cpu
+var chart_LabelCpu = echarts.init(document.getElementById('label-cpu'));
+
+var option_LabelCpu = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: 'cpu使用率',
+	            type: 'gauge',
+		        //max: 100,    //设置刻度盘内数值区间
+		        splitNumber: 4,  //设置间隔区域的显示数量
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                    	color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                        width: 2,
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                    length : 10,        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto',
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_LabelCpu.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_LabelCpu.setOption(option_LabelCpu, true);
+
+setInterval(function () {
+	option_LabelCpu.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+	chart_LabelCpu.setOption(option_LabelCpu, true);
+},5000);
+
+// 内存
+var chart_LabelMemory = echarts.init(document.getElementById('label-memory'));
+
+var option_LabelMemory = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: '内存使用率',
+	            type: 'gauge',
+		        //max: 100,    //设置刻度盘内数值区间
+		        splitNumber: 4,  //设置间隔区域的显示数量
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                    	color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                        width: 2,
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                    length : 10,        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto',
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_LabelMemory.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_LabelMemory.setOption(option_LabelMemory, true);
+
+setInterval(function () {
+	option_LabelMemory.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+	chart_LabelMemory.setOption(option_LabelMemory, true);
+},5000);
+
+// 网络使用率
+var chart_LabelNet = echarts.init(document.getElementById('label-net'));
+
+var option_LabelNet = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: '网络使用率',
+	            type: 'gauge',
+		        //max: 100,    //设置刻度盘内数值区间
+		        splitNumber: 4,  //设置间隔区域的显示数量
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                    	color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                        width: 2,
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                    length : 10,        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto',
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_LabelNet.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_LabelNet.setOption(option_LabelNet, true);
+
+setInterval(function () {
+	option_LabelNet.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+	chart_LabelNet.setOption(option_LabelNet, true);
+},5000);
+
+/**
+ * 集中管控
+ */
+ 
+ // cpu
+
+ var chart_FocusControlCpu = echarts.init(document.getElementById('focus-control-cpu'));
+
+var option_FocusControlCpu = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: 'cpu使用率',
+	            type: 'gauge',
+		        //max: 100,    //设置刻度盘内数值区间
+		        splitNumber: 4,  //设置间隔区域的显示数量
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                    	color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                        width: 2,
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                    length : 10,        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto',
+                        shadowColor : '#fff', //默认透明
+                        shadowBlur: 10
+                    }
+                },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_FocusControlCpu.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_FocusControlCpu.setOption(option_FocusControlCpu, true);
+
+setInterval(function () {
+	option_FocusControlCpu.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+	chart_FocusControlCpu.setOption(option_FocusControlCpu, true);
+},5000);
+
+// 内存
+
+var chart_FocusControlMemory = echarts.init(document.getElementById('focus-control-memory'));
+
+var option_FocusControlMemory = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: '内存使用率',
+	            type: 'gauge',
+		        //max: 100,    //设置刻度盘内数值区间
+		        splitNumber: 4,  //设置间隔区域的显示数量
+               axisLine: {            // 坐标轴线
+                   lineStyle: {       // 属性lineStyle控制线条样式
+                	   color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                       width: 2,
+                       shadowColor : '#fff', //默认透明
+                       shadowBlur: 10
+                   }
+               },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                   length : 10,        // 属性length控制线长
+                   lineStyle: {       // 属性lineStyle控制线条样式
+                       color: 'auto',
+                       shadowColor : '#fff', //默认透明
+                       shadowBlur: 10
+                   }
+               },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_FocusControlMemory.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_FocusControlMemory.setOption(option_FocusControlMemory, true);
+
+setInterval(function () {
+	option_FocusControlMemory.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+	chart_FocusControlMemory.setOption(option_FocusControlMemory, true);
+},5000);
+
+// 网络使用率
+
+var chart_FocusControlNet = echarts.init(document.getElementById('focus-control-net'));
+
+var option_FocusControlNet = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series: [
+	        {
+	            name: '网络使用率',
+	            type: 'gauge',
+		        //max: 100,    //设置刻度盘内数值区间
+		        splitNumber: 4,  //设置间隔区域的显示数量
+               axisLine: {            // 坐标轴线
+                   lineStyle: {       // 属性lineStyle控制线条样式
+                	   color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+                       width: 2,
+                       shadowColor : '#fff', //默认透明
+                       shadowBlur: 10
+                   }
+               },
+	            pointer: {
+	                width:3,//指针的宽度
+	                length:"60%", //指针长度，按照半圆半径的百分比
+	                shadowColor : '#ccc', //默认透明
+	                shadowBlur: 5
+	            },
+	            axisLabel: {            // 坐标轴小标记
+	                textStyle: {       // 属性lineStyle控制线条样式
+	                    color: '#000',
+	                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+	                    shadowColor : '#000', //默认透明   
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+                   length : 10,        // 属性length控制线长
+                   lineStyle: {       // 属性lineStyle控制线条样式
+                       color: 'auto',
+                       shadowColor : '#fff', //默认透明
+                       shadowBlur: 10
+                   }
+               },
+	            splitLine: { //分割线样式
+	            	length: 5
+	            },
+	            detail: {
+	            	formatter:'{value}%',
+	            	offsetCenter: [0, '120%'],
+	            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder',
+	                    fontSize: 16
+	                }
+	            },
+	            data: [{value: 50, name: ''}]
+	        }
+	    ]
+	};
+
+option_FocusControlNet.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_FocusControlNet.setOption(option_FocusControlNet, true);
+
+setInterval(function () {
+	option_FocusControlNet.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+	chart_FocusControlNet.setOption(option_FocusControlNet, true);
+},5000);
+
+/**
+ * 集中文印
+ */
+ 
+ // CPU
+ 
+ var option_FocusPrintCpu = {
+		    tooltip : {
+		        formatter: "{a} <br/>{b} : {c}%"
+		    },
+		    series: [
+		        {
+		            name: 'cpu使用率',
+		            type: 'gauge',
+			        //max: 100,    //设置刻度盘内数值区间
+			        splitNumber: 4,  //设置间隔区域的显示数量
+	               axisLine: {            // 坐标轴线
+	                   lineStyle: {       // 属性lineStyle控制线条样式
+	                	   color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+	                       width: 2,
+	                       shadowColor : '#fff', //默认透明
+	                       shadowBlur: 10
+	                   }
+	               },
+		            pointer: {
+		                width:3,//指针的宽度
+		                length:"60%", //指针长度，按照半圆半径的百分比
+		                shadowColor : '#ccc', //默认透明
+		                shadowBlur: 5
+		            },
+		            axisLabel: {            // 坐标轴小标记
+		                textStyle: {       // 属性lineStyle控制线条样式
+		                    color: '#000',
+		                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+		                    shadowColor : '#000', //默认透明   
+		                }
+		            },
+		            axisTick: {            // 坐标轴小标记
+	                   length : 10,        // 属性length控制线长
+	                   lineStyle: {       // 属性lineStyle控制线条样式
+	                       color: 'auto',
+	                       shadowColor : '#fff', //默认透明
+	                       shadowBlur: 10
+	                   }
+	               },
+		            splitLine: { //分割线样式
+		            	length: 5
+		            },
+		            detail: {
+		            	formatter:'{value}%',
+		            	offsetCenter: [0, '120%'],
+		            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+		                    fontWeight: 'bolder',
+		                    fontSize: 16
+		                }
+		            },
+		            data: [{value: 50, name: ''}]
+		        }
+		    ]
+};
+ 
+ var chart_FocusPrintCpu = echarts.init(document.getElementById('focus-print-cpu'));
+ option_FocusPrintCpu.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+ chart_FocusPrintCpu.setOption(option_FocusPrintCpu, true);
+ setInterval(function () {
+	 	option_FocusPrintCpu.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+		chart_FocusPrintCpu.setOption(option_FocusPrintCpu, true);
+	},5000);
+ 
+ // 内存
+ 
+var option_FocusPrintMemory = {
+		    tooltip : {
+		        formatter: "{a} <br/>{b} : {c}%"
+		    },
+		    series: [
+		        {
+		            name: '内存使用率',
+		            type: 'gauge',
+			        //max: 100,    //设置刻度盘内数值区间
+			        splitNumber: 4,  //设置间隔区域的显示数量
+	               axisLine: {            // 坐标轴线
+	                   lineStyle: {       // 属性lineStyle控制线条样式
+	                	   color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+	                       width: 2,
+	                       shadowColor : '#fff', //默认透明
+	                       shadowBlur: 10
+	                   }
+	               },
+		            pointer: {
+		                width:3,//指针的宽度
+		                length:"60%", //指针长度，按照半圆半径的百分比
+		                shadowColor : '#ccc', //默认透明
+		                shadowBlur: 5
+		            },
+		            axisLabel: {            // 坐标轴小标记
+		                textStyle: {       // 属性lineStyle控制线条样式
+		                    color: '#000',
+		                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+		                    shadowColor : '#000', //默认透明   
+		                }
+		            },
+		            axisTick: {            // 坐标轴小标记
+	                   length : 10,        // 属性length控制线长
+	                   lineStyle: {       // 属性lineStyle控制线条样式
+	                       color: 'auto',
+	                       shadowColor : '#fff', //默认透明
+	                       shadowBlur: 10
+	                   }
+	               },
+		            splitLine: { //分割线样式
+		            	length: 5
+		            },
+		            detail: {
+		            	formatter:'{value}%',
+		            	offsetCenter: [0, '120%'],
+		            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+		                    fontWeight: 'bolder',
+		                    fontSize: 16
+		                }
+		            },
+		            data: [{value: 50, name: ''}]
+		        }
+		    ]
+};
+ 
+var chart_FocusPrintMemory = echarts.init(document.getElementById('focus-print-memory'));
+ 
+option_FocusPrintMemory.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_FocusPrintMemory.setOption(option_FocusPrintMemory, true);
+	
+ setInterval(function () {
+	 	option_FocusPrintMemory.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+	 	chart_FocusPrintMemory.setOption(option_FocusPrintMemory, true);
+	},5000);
+ 
+ // 网络使用率
+ 
+var option_FocusPrintNet = {
+		    tooltip : {
+		        formatter: "{a} <br/>{b} : {c}%"
+		    },
+		    series: [
+		        {
+		            name: '网络使用率',
+		            type: 'gauge',
+			        //max: 100,    //设置刻度盘内数值区间
+			        splitNumber: 4,  //设置间隔区域的显示数量
+	               axisLine: {            // 坐标轴线
+	                   lineStyle: {       // 属性lineStyle控制线条样式
+	                	   color: [[0.6, '#54be46'],[0.80, '#ffca46'],[1, '#ce464b']],
+	                       width: 2,
+	                       shadowColor : '#fff', //默认透明
+	                       shadowBlur: 10
+	                   }
+	               },
+		            pointer: {
+		                width:3,//指针的宽度
+		                length:"60%", //指针长度，按照半圆半径的百分比
+		                shadowColor : '#ccc', //默认透明
+		                shadowBlur: 5
+		            },
+		            axisLabel: {            // 坐标轴小标记
+		                textStyle: {       // 属性lineStyle控制线条样式
+		                    color: '#000',
+		                    fontSize: 8,   //改变仪表盘内刻度数字的大小
+		                    shadowColor : '#000', //默认透明   
+		                }
+		            },
+		            axisTick: {            // 坐标轴小标记
+	                   length : 10,        // 属性length控制线长
+	                   lineStyle: {       // 属性lineStyle控制线条样式
+	                       color: 'auto',
+	                       shadowColor : '#fff', //默认透明
+	                       shadowBlur: 10
+	                   }
+	               },
+		            splitLine: { //分割线样式
+		            	length: 5
+		            },
+		            detail: {
+		            	formatter:'{value}%',
+		            	offsetCenter: [0, '120%'],
+		            	textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+		                    fontWeight: 'bolder',
+		                    fontSize: 16
+		                }
+		            },
+		            data: [{value: 50, name: ''}]
+		        }
+		    ]
+};
+
+var chart_FocusPrintNet = echarts.init(document.getElementById('focus-print-net'));
+
+option_FocusPrintNet.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+chart_FocusPrintNet.setOption(option_FocusPrintNet, true);
+
+setInterval(function () {
+	 	option_FocusPrintNet.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+	 	chart_FocusPrintNet.setOption(option_FocusPrintNet, true);
+},5000);
+
+/**
+ * CPU使用TOP N
+ */
+
+var chart_CpuTopN = echarts.init(document.getElementById('cpu-top-n'));
+
+var option_CpuTopN = {
+	    color: ['#7cb5ec'],
+	    tooltip : {
+	        trigger: 'axis',
+	        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+	            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+	        }
+	    },
+	    grid: {
+	        left: '3%',
+	        right: '4%',
+	        bottom: '3%',
+	        borderWidth: 0,
+	        containLabel: true
+	    },
+	    xAxis : [
+	        {
+	            type : 'category',
+	            data : ['主机一', '主机二', '主机三', '主机四', '主机五', '主机六', '主机七', '主机八', '主机九', '主机十'],
+	            axisTick: {
+	                alignWithLabel: true
+	            }
+	        }
+	    ],
+	    yAxis : [
+	        {
+	        	name: '使用率(%)',
+	            type : 'value',
+	            //网格样式
+	            splitLine: {
+	                show: true,
+	                lineStyle:{
+	                    color: ['#e4e6eb'],
+	                    width: 1,
+	                    type: 'solid'
+	                }
+	            }
+	        }
+	    ],
+	    series : [
+	        {
+	            name:'使用率',
+	            type:'bar',
+	            barWidth: '60%',
+	            itemStyle: {
+	                normal: {
+	                    color: new echarts.graphic.LinearGradient(
+	                        0, 0, 0, 1,
+	                        [
+	                            {offset: 0, color: '#83bff6'},
+	                            {offset: 0.5, color: '#188df0'},
+	                            {offset: 1, color: '#188df0'}
+	                        ]
+	                    )
+	                },
+	                emphasis: {
+	                    color: new echarts.graphic.LinearGradient(
+	                        0, 0, 0, 1,
+	                        [
+	                            {offset: 0, color: '#2378f7'},
+	                            {offset: 0.7, color: '#2378f7'},
+	                            {offset: 1, color: '#83bff6'}
+	                        ]
+	                    )
+	                }
+	            },
+	            data:[90, 80, 70, 60, 50, 40, 30, 20, 10, 5]
+	        }
+	    ]
+};
+
+chart_CpuTopN.setOption(option_CpuTopN);
+
+/**
+ * 内存使用TOP N
+ */
+
+var chart_MemoryTopN = echarts.init(document.getElementById('memory-top-n'));
+
+var option_MemoryTopN = {
+	    color: ['#9183e4'],
+	    tooltip : {
+	        trigger: 'axis',
+	        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+	            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+	        }
+	    },
+	    grid: {
+	        left: '3%',
+	        right: '4%',
+	        bottom: '3%',
+	        containLabel: true
+	    },
+	    xAxis : [
+	        {
+	            type : 'category',
+	            data : ['主机一', '主机二', '主机三', '主机四', '主机五', '主机六', '主机七', '主机八', '主机九', '主机十'],
+	            axisTick: {
+	                alignWithLabel: true
+	            }
+	        }
+	    ],
+	    yAxis : [
+	        {
+	        	name: '使用率(%)',
+	            type : 'value',
+	            //网格样式
+	            splitLine: {
+	                show: true,
+	                lineStyle:{
+	                    color: ['#e4e6eb'],
+	                    width: 1,
+	                    type: 'solid'
+	                }
+	            }
+	        }
+	    ],
+	    series : [
+	        {
+	            name:'使用率',
+	            type:'bar',
+	            barWidth: '60%',
+	            itemStyle: {
+	                normal: {
+	                    color: new echarts.graphic.LinearGradient(
+	                        0, 0, 0, 1,
+	                        [
+	                            {offset: 0, color: '#c27ef5'},
+	                            {offset: 0.5, color: '#9118f0'},
+	                            {offset: 1, color: '#9118f0'}
+	                        ]
+	                    )
+	                },
+	                emphasis: {
+	                    color: new echarts.graphic.LinearGradient(
+	                        0, 0, 0, 1,
+	                        [
+	                            {offset: 0, color: '#9118f0'},
+	                            {offset: 0.7, color: '#9118f0'},
+	                            {offset: 1, color: '#c27ef5'}
+	                        ]
+	                    )
+	                }
+	            },
+	            data:[91, 55, 51, 40, 32, 28, 21, 15, 12, 5]
+	        }
+	    ]
+};
+
+chart_MemoryTopN.setOption(option_MemoryTopN);
+
+/**
+ * 网络占用TOP N
+ */
+
+var chart_NetTopN = echarts.init(document.getElementById('net-top-n'));
+
+var option_NetTopN = {
+	    color: ['#94cb7f'],
+	    tooltip : {
+	        trigger: 'axis',
+	        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+	            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+	        }
+	    },
+	    grid: {
+	        left: '3%',
+	        right: '4%',
+	        bottom: '3%',
+	        containLabel: true
+	    },
+	    xAxis : [
+	        {
+	            type : 'category',
+	            data : ['主机一', '主机二', '主机三', '主机四', '主机五', '主机六', '主机七', '主机八', '主机九', '主机十'],
+	            axisTick: {
+	                alignWithLabel: true
+	            }
+	        }
+	    ],
+	    yAxis : [
+	        {
+	        	name: '占用(MB)',
+	            type : 'value',
+	            //网格样式
+	            splitLine: {
+	                show: true,
+	                lineStyle:{
+	                    color: ['#e4e6eb'],
+	                    width: 1,
+	                    type: 'solid'
+	                }
+	            }
+	        }
+	    ],
+	    series : [
+	        {
+	            name:'网络占用',
+	            type:'bar',
+	            barWidth: '60%',
+	            itemStyle: {
+	                normal: {
+	                    color: new echarts.graphic.LinearGradient(
+	                        0, 0, 0, 1,
+	                        [
+	                            {offset: 0, color: '#98da9b'},
+	                            {offset: 0.5, color: '#48bf4b'},
+	                            {offset: 1, color: '#48bf4b'}
+	                        ]
+	                    )
+	                },
+	                emphasis: {
+	                    color: new echarts.graphic.LinearGradient(
+	                        0, 0, 0, 1,
+	                        [
+	                            {offset: 0, color: '#48bf4b'},
+	                            {offset: 0.7, color: '#48bf4b'},
+	                            {offset: 1, color: '#98da9b'}
+	                        ]
+	                    )
+	                }
+	            },
+	            data:[9, 8, 7, 6, 5, 4, 3, 2, 1, 0.5]
+	        }
+	    ]
+};
+
+chart_NetTopN.setOption(option_NetTopN);
+
+/**
+ * 磁盘使用情况
+ */
+
+var chart_DiskUsed = echarts.init(document.getElementById('disk-used'));
+var option_DiskUsed = {
+	    tooltip: {
+	        trigger: 'item',
+	        formatter: "{a} <br/>{b}: {c}G({d}%)"
+	        //formatter: " {b}：{c} "
+	        
+	       // ({d}%)   代表该模块所占圆环比例
+	        // formatter: "{a} <br/>{b}: {c} ({d}%)"
+	    },
+	     //环形颜色
+	    color:['#009688','#adb5bd'],
+	    legend: {
+	        orient: 'vertical',
+	        show: true,
+	        x: 'left',
+	        data: ['已使用', '未使用']
+	    },
+	    series: [
+	        {
+	            name: '磁盘使用情况',
+	            type: 'pie',
+	            radius: ['50%', '70%'],
+	            labelLine: {
+	                normal: {
+	                    length: 20,
+	                    length2: 10, // 调节牵引线上文字的位置
+	                    lineStyle: {
+	                        color: '#666'
+	                    }
+	                }
+	 
+	            },
+	            label: {
+	                normal: {
+	                    // \n\n可让文字居于牵引线上方，很关键
+	                    //  {b}  代表显示的内容标题
+	                    // {c}代表数据
+	                    formatter: ' {b}：{c}G ({d}%) \n\n',
+	                    
+	                    borderWidth: 4,
+	                    borderRadius: 4,
+	                    padding: [0, -50],
+	                    textStyle: {
+	                    	fontSize: 14 // 调节牵引线上文字的大小
+	                    },
+	                    rich: {
+	                        a: {
+	                            color: '#333',
+	                            fontSize: 14,
+	                            lineHeight: 20
+	                        },
+	                        b: {
+	                            fontSize: 14,
+	                            lineHeight: 20,
+	                            color: '#333'
+	                        }
+	                    }
+	                }
+	            },
+	            data: [{
+	                value: 28,
+	                name: '已使用'
+	            }, {
+	                value: 72,
+	                name: '未使用'
+	            }]
+	        }
+	    ]
+	};
+
+chart_DiskUsed.setOption(option_DiskUsed);
+
+/**
+ * 日志告警级别分布
+ */
+
+var chart_LogAlarm = echarts.init(document.getElementById('log-alarm'));
+
+var option_LogAlarm = {
+	    color: ['#7cb5ec'],
+	    tooltip : {
+	        trigger: 'axis',
+	        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+	            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+	        }
+	    },
+	    grid: {
+	        left: '3%',
+	        right: '4%',
+	        bottom: '3%',
+	        containLabel: true
+	    },
+	    xAxis : [
+	        {
+	            type : 'category',
+	            data : ['测试', '信息', '通知', '警告', '错误', '关键', '警报', '紧急'],
+	            axisTick: {
+	                alignWithLabel: true
+	            }
+	        }
+	    ],
+	    yAxis : [
+	        {
+	        	name: '单位(次)',
+	            type : 'value',
+	            //网格样式
+	            splitLine: {
+	                show: true,
+	                lineStyle:{
+	                    color: ['#e4e6eb'],
+	                    width: 1,
+	                    type: 'solid'
+	                }
+	            }
+	        }
+	    ],
+	    series : [
+	        {
+	            name:'次数',
+	            type:'bar',
+	            barWidth: '60%', // 柱的宽度
+	            itemStyle: { // 柱的渐变样式
+	                normal: {
+	                    color: new echarts.graphic.LinearGradient(
+	                        0, 0, 0, 1,
+	                        [
+	                            {offset: 0, color: '#969ede'},
+	                            {offset: 0.5, color: '#4959c8'},
+	                            {offset: 1, color: '#4959c8'}
+	                        ]
+	                    )
+	                },
+	                emphasis: {
+	                    color: new echarts.graphic.LinearGradient(
+	                        0, 0, 0, 1,
+	                        [
+	                            {offset: 0, color: '#4959c8'},
+	                            {offset: 0.7, color: '#4959c8'},
+	                            {offset: 1, color: '#969ede'}
+	                        ]
+	                    )
+	                }
+	            },
+	            data:[10, 52, 60, 12, 89, 72, 61, 40]
+	        }
+	    ]
+};
+
+chart_LogAlarm.setOption(option_LogAlarm);
+
+/**
+ * 系统负载
+ */
+
+var chart_SystemLoad = echarts.init(document.getElementById('system-load'));
+
+var option_SystemLoad = {
+	    title: {
+	        text: ''
+	    },
+	    tooltip : {
+	        trigger: 'axis',
+	        position: function (pt) {
+	            return [pt[0], '10%'];
+	        }
+	    },
+	    grid: {
+	        left: '3%',
+	        right: '4%',
+	        bottom: '3%',
+	        containLabel: true
+	    },
+	    xAxis : [
+	        {
+	            type : 'category',
+	            boundaryGap : false,
+	            data : ['0:00', '1:00','2:00','3:00','4:00','5:00','6:00','7:00', '8:00','9:00','10:00','11:00','12:00','13:00','14:00', '15:00','16:00','17:00','18:00','19:00','20:00','21:00', '22:00','23:00']
+	        }
+	    ],
+	    yAxis : [
+	        {
+	            type : 'value',
+	            //网格样式
+	            splitLine: {
+	                show: true,
+	                lineStyle:{
+	                    color: ['#e4e6eb'],
+	                    width: 1,
+	                    type: 'solid'
+	                }
+	            }
+	        }
+	    ],
+	    series : [
+	        {
+	            name:'系统负载',
+	            type:'line',
+	            stack: '量',
+// 	            label: {
+// 	                normal: {
+// 	                    show: false,
+// 	                    position: 'top'
+// 	                }
+// 	            },
+ 				itemStyle: { 
+ 					normal: { 
+ 						color: "#1bb2e9", 
+ 						lineStyle: { 
+ 							color: "#1bb2e9" 
+ 						} 
+ 					} 
+ 				}, 
+	            areaStyle: { // 折线渐变样式
+	            	 normal: { 
+	            		 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ 
+	            			 offset: 0, color: '#c0eaf9' 
+	            			 }, 
+	            			 { offset: 1, color: '#8dd8f4'}]) 
+	           		 }
+	            },
+	            data:[1, 5, 3, 6, 9, 8, 7, 2, 3, 3, 1, 6, 3, 2, 2, 3, 2, 5, 6, 3, 6, 2, 3, 1]
+	        }
+	    ]
+	};
+
+chart_SystemLoad.setOption(option_SystemLoad);
+
+/**
+ * 用户在线离线对比
+ */
+
+var chart_OnOffLineContrast = echarts.init(document.getElementById('on-off-line-contrast'));
+var option_OnOffLineContrast =  {
+	    tooltip: {
+	        trigger: 'item',
+	        formatter: "{a} <br/>{b}: {c} 人({d}%)"
+	        //formatter: " {b}：{c} "
+	        
+	       // ({d}%)   代表该模块所占圆环比例
+	        // formatter: "{a} <br/>{b}: {c} ({d}%)"
+	    },
+	     //环形颜色
+	    color:['#53a720','#59646e'],
+	    legend: {
+	        orient: 'vertical',
+	        show: true,
+	        x: 'left',
+	        data: ['在线', '离线']
+	    },
+	    series: [
+	        {
+	            name: '在线离线对比',
+	            type: 'pie',
+	            radius: ['50%', '70%'],
+	            labelLine: {
+	                normal: {
+	                    length: 20,
+	                    length2: 10, // 调节牵引线文字位置
+	                    lineStyle: {
+	                        color: '#666'
+	                    }
+	                }
+	 
+	            },
+	            label: {
+	                normal: {
+	                    // \n\n可让文字居于牵引线上方，很关键
+	                    //  {b}  代表显示的内容标题
+	                    // {c}代表数据
+	                    formatter: ' {b}：{c} 人({d}%) \n\n',
+	                    
+	                    borderWidth: 4,
+	                    borderRadius: 4,
+	                    padding: [0, -50],
+	                    position: 'outer',
+	                    textStyle: {
+	                    	fontSize: 14 // 设置牵引线文字大小
+	                    },
+	                    rich: {
+	                    	a: {
+	                            color: '#999',
+	                            lineHeight: 22,
+	                            align: 'center'
+	                        },
+	                        b: {
+	                            fontSize: 16,
+	                            lineHeight: 33
+	                        }
+	                    }
+	                }
+	            },
+	            data: [{
+	                value: 12,
+	                name: '在线'
+	            }, {
+	                value: 18,
+	                name: '离线'
+	            }]
+	        }
+	    ]
+	};
+
+chart_OnOffLineContrast.setOption(option_OnOffLineContrast);
+
+/**
+ * 用户活跃度/周
+ */
+
+var chart_UserActivity = echarts.init(document.getElementById('user-activity'));
+
+var option_UserActivity = {
+	    color: ['#77d882'],
+	    tooltip : {
+	        trigger: 'axis',
+	        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+	            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+	        }
+	    },
+	    grid: {
+	        left: '3%',
+	        right: '4%',
+	        bottom: '3%',
+	        containLabel: true
+	    },
+	    xAxis : [
+	        {
+	            type : 'category',
+	            data : ['用户一', '用户二', '用户三', '用户四', '用户五', '用户六', '用户七', '用户八', '用户九', '用户十'],
+	            axisTick: {
+	                alignWithLabel: true
+	            }
+	        }
+	    ],
+	    yAxis : [
+	        {
+	        	name: '活跃度(次)',
+	            type : 'value',
+	            //网格样式
+	            splitLine: {
+	                show: true,
+	                lineStyle:{
+	                    color: ['#e4e6eb'],
+	                    width: 1,
+	                    type: 'solid'
+	                }
+	            }
+	        }
+	    ],
+	    series : [
+	        {
+	            name:'登录次数',
+	            type:'bar',
+	            barWidth: '60%',
+	            itemStyle: {
+	                normal: {
+	                    color: new echarts.graphic.LinearGradient(
+	                        0, 0, 0, 1,
+	                        [
+	                            {offset: 0, color: '#f5b57b'},
+	                            {offset: 0.5, color: '#f96332'},
+	                            {offset: 1, color: '#f96332'}
+	                        ]
+	                    )
+	                },
+	                emphasis: {
+	                    color: new echarts.graphic.LinearGradient(
+	                        0, 0, 0, 1,
+	                        [
+	                            {offset: 0, color: '#f96332'},
+	                            {offset: 0.7, color: '#f96332'},
+	                            {offset: 1, color: '#f5b57b'}
+	                        ]
+	                    )
+	                }
+	            },
+	            data:[90, 80, 70, 60, 50, 40, 30, 20, 10, 5]
+	        }
+	    ]
+};
+
+chart_UserActivity.setOption(option_UserActivity);
+
+</script>
+</body>
+</html>
